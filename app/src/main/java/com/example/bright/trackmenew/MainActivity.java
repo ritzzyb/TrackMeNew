@@ -1,11 +1,13 @@
 package com.example.bright.trackmenew;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -16,8 +18,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MainActivity extends AppCompatActivity
         implements LocationListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -41,6 +43,9 @@ public class MainActivity extends AppCompatActivity
                 .addOnConnectionFailedListener(this)
                 .build();
         locationRequest = new LocationRequest()
+                .setFastestInterval(1000L)
+                .setInterval(1000L)
+                .setSmallestDisplacement(10.0F)
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
@@ -52,14 +57,18 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onLocationChanged(Location location) {
+        Log.i("TAG", location.getLatitude() + " " + location.getLongitude());
         sydney = new LatLng(location.getLatitude(), location.getLongitude());
-        mMap.addMarker(new MarkerOptions()
-                .position(sydney)
-                .title("Your Current Location")
-                .draggable(false)
-                .flat(false)
-                .visible(true));
-        mMap.setMinZoomPreference(8);
+        mMap.clear();
+        mMap.addCircle(new CircleOptions()
+                .radius(8)
+                .visible(true)
+                .center(sydney)
+                .fillColor(Color.rgb(33, 150, 243))
+                .strokeWidth(8)
+                .strokeColor(Color.rgb(187, 222, 251)));
+        mMap.setMinZoomPreference(17);
+        mMap.setMaxZoomPreference(18);
         mMap.setIndoorEnabled(true);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
